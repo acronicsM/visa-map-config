@@ -1,0 +1,15 @@
+# Подпроекты — у них свои репозитории
+visa-map2/
+visa-map2-frontend/
+
+# Cursor внутренние данные (не нужны на других устройствах)
+.cursor/mcp.json
+.cursor/chat/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+*.swp
+*.swo

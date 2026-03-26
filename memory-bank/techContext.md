@@ -94,19 +94,6 @@ NEXT_PUBLIC_MAPTILER_KEY=QSXDQ2qaHgSaUcWyPlkF
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 
-### Запуск проекта
-```bash
-# Backend
-cd c:\ProjectVisaMap\visa-map2
-pip install -r requirements.txt
-uvicorn app.main:app --reload --port 8000
-
-# Frontend
-cd c:\ProjectVisaMap\visa-map2-frontend
-npm install
-npm run dev
-```
-
 ## Линтинг и форматирование
 
 ### Backend

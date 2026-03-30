@@ -7,7 +7,10 @@
   name_ru, name_en, name_native, flag_emoji, region, subregion, capital,
   geom, center_point, bbox_min/max_lat/lng, is_active,
   primary_language (ISO 639-3), language_name, all_languages (jsonb),
-  country_tld, name_translations (jsonb), confidence_level
+  country_tld, name_translations (jsonb), confidence_level,
+  safety_level(safe/unsafe/dangerous), safety_note, safety_source,
+  safety_updated_at, cost_level(low/medium/high), cost_per_day_usd,
+  cost_updated_at
 
 - **passports** — id, country_id(FK), name_ru, type(regular/diplomatic/service)
 

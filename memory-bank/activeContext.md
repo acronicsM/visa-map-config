@@ -1,12 +1,22 @@
 # Активный контекст
 
-## Текущий фокус (25 марта 2026)
+## Текущий фокус (30 марта 2026)
 
-Инициализация Memory Bank — приведение документации в соответствие со стандартной структурой (productContext, systemPatterns, techContext, progress, activeContext).
+Расширение модели стран полями безопасности и стоимости отдыха
+(`safety_*`, `cost_*`) и базовое заполнение данных для всех стран.
 
 ## Последние изменения
 
 - Инициализирован Memory Bank: созданы все обязательные core-файлы
+- Добавлена миграция Alembic для новых полей `countries`:
+  `safety_level`, `safety_note`, `safety_source`, `safety_updated_at`,
+  `cost_level`, `cost_per_day_usd`, `cost_updated_at`
+- Обновлены ORM-модель `Country` и схема `CountryDetail`
+- Добавлен скрипт `scripts/seed_safety_cost.py` для рандомного заполнения
+  safety/cost полей по всем странам
+- Добавлен локальный Cursor skill
+  `.cursor/skills/fastapi-router-py/SKILL.md` (адаптирован под структуру
+  `visa-map2`: async FastAPI, `get_db`, `verify_api_key`, router->service)
 
 ## Активные решения и соображения
 

@@ -1,52 +1,141 @@
-# TODO
+# TODO: Добавить safety_level и cost_level в таблицу countries
 
-## Сделано
+## Контекст
+Проект visa-map2. Backend: FastAPI + SQLAlchemy async + PostgreSQL.
+Читай memory-bank/ для полного контекста проекта.
 
-### Backend
-- [x] FastAPI приложение с async SQLAlchemy + PostgreSQL/PostGIS
-- [x] Redis кеширование (GeoJSON 24h, visa-map 1h)
-- [x] 250 стран с геометрией, языками, переводами, TLD
-- [x] 39 402 визовых режима (из Passport Index CSV, confidence_level=3)
-- [x] Admin API с аутентификацией по X-Api-Key
-- [x] История изменений визовых политик (`visa_policy_history`)
-- [x] Confidence level система (3 уровня достоверности)
-- [x] RSS мониторинг (23 активных источника)
-- [x] Обнаружение локальных источников (Google News RSS + TLD фильтр)
-- [x] Docker Compose для dev окружения (PostgreSQL + Redis)
-- [x] Alembic миграции
-- [x] Скрипты загрузки данных (restcountries, Natural Earth, Passport Index)
+## Задача
+Добавить два новых поля в таблицу `countries`:
+- `safety_level` — уровень безопасности страны (safe/unsafe/dangerous)
+- `safety_note` - Комментарий к уровню безопастности, если есть
+- `safety_source` - Ссылка на истоник установления уровня безопастности, если есть
+- `safety_updated_at` - дата обновления уровня безопастости
+- `cost_level` — стоиомсть отдыха (low/medium/high)
+- `cost_per_day_usd` - Стоимость 1 дня отдыха в USD 
+- `cost_updated_at` - дата обновления стоимости отдыха
 
-### Frontend
-- [x] Next.js 16 + MapLibre GL + Maptiler + Tailwind CSS
-- [x] Интерактивная карта с окраской по визовым режимам
-- [x] Дропдаун выбора паспорта с поиском (250 стран)
-- [x] Карточка страны при клике (CountryPopup)
-- [x] Легенда визовых категорий
-- [x] Hover эффект на карте
+## Шаг 1 — Миграция Alembic
 
----
+Создай новую миграцию:
+```bash
+alembic revision -m "add safety_level and cost_level to countries"
+```
 
-## В процессе
+В файле миграции реализуй:
+```python
+def upgrade() -> None:
+    op.add_column('countries', sa.Column(
+        'safety_level',
+        sa.String(20),
+        nullable=True,
+        comment='safe / unsafe / dangerous'
+    ))
+    op.add_column('countries', sa.Column(
+        'safety_note', sa.Text(), nullable=True
+    ))
+    op.add_column('countries', sa.Column(
+        'safety_source', sa.Text(), nullable=True
+    ))
+    op.add_column('countries', sa.Column(
+        'safety_updated_at', sa.DateTime(timezone=True), nullable=True
+    ))
+    op.add_column('countries', sa.Column(
+        'cost_level',
+        sa.String(20),
+        nullable=True,
+        comment='low / medium / high'
+    ))
+    op.add_column('countries', sa.Column(
+        'cost_per_day_usd', sa.Integer(), nullable=True
+    ))
+     op.add_column('countries', sa.Column(
+        'cost_updated_at', sa.DateTime(timezone=True), nullable=True
+    ))
 
-- [ ] Лонгрид структура главной страницы (баннеры, подвал)
+def downgrade() -> None:
+    op.drop_column('countries', 'cost_updated_at')
+    op.drop_column('countries', 'cost_per_day_usd')
+    op.drop_column('countries', 'cost_level')
+    op.drop_column('countries', 'safety_updated_at')
+    op.drop_column('countries', 'safety_source')
+    op.drop_column('countries', 'safety_note')
+    op.drop_column('countries', 'safety_level')
+```
 
----
+Применить миграцию:
+```bash
+alembic upgrade head
+```
 
-## Планируется
+## Шаг 2 — Обновить модель Country
 
-### Backend
-- [ ] Правило двух стран в RSS триггере (триггер только если упомянуты обе страны)
-- [ ] Таблица очереди агрегатора (`aggregator_queue`)
-- [ ] APScheduler для автозапуска RSS мониторинга
-- [ ] Парсинг МИД сайтов для confidence_level=1
+Файл: `app/models/country.py`
 
-### Frontend
-- [ ] Детальная страница страны (`/country/[iso2]`)
-- [ ] Статистика на главной (счётчики: безвизовых, е-визы и т.д.)
-- [ ] Адаптивная вёрстка для мобильных устройств
-- [ ] SEO мета-теги и Open Graph
+Добавить поля в класс Country после существующих полей:
+```python
+safety_level: Mapped[str | None] = mapped_column(String(20), nullable=True)
+safety_note: Mapped[str | None] = mapped_column(Text, nullable=True)
+safety_source: Mapped[str | None] = mapped_column(Text, nullable=True)
+safety_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+cost_level: Mapped[str | None] = mapped_column(String(20), nullable=True)
+cost_per_day_usd: Mapped[int | None] = mapped_column(Integer, nullable=True)
+cost_updated_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+```
 
-### Инфраструктура
-- [ ] Деплой backend (VPS или Railway)
-- [ ] Деплой frontend (Vercel)
-- [ ] CI/CD через GitHub Actions
+## Шаг 3 — Обновить схемы Pydantic
+
+Файл: `app/schemas/country.py`
+
+Добавить поля в схему CountryDetail (или как она называется в проекте):
+```python
+safety_level: str | None = None
+safety_note: str | None = None
+safety_source: str | None = None
+cost_level: str | None = None
+cost_per_day_usd: int | None = None
+```
+
+## Шаг 4 — Скрипт заполнения данных
+
+Создай файл `scripts/seed_safety_cost.py`.
+
+Напиши код заполнения полей случайнами значениями 
+
+Скрипт должен:
+1. Загрузить все страны из БД
+2. Для каждой страны заполнить случайным значением (safe/unsafe/dangerous) поле safety_level
+3. Для каждой страны заполнить случайным значением (low/medium/high) поле cost_level
+4. Установить safety_updated_at и cost_updated_at = datetime.now(timezone.utc)
+5. Вывести статистику: Страна X стран: безопастность Y, стоимость Z
+
+## Шаг 5 — Проверка
+```bash
+# Запустить миграцию
+alembic upgrade head
+
+# Запустить скрипт заполнения
+python scripts/seed_safety_cost.py
+
+# Проверить в БД
+docker exec -it visamap_postgres psql -U visauser -d visamap -c "
+SELECT iso2, name_en, safety_level, cost_level, cost_per_day_usd
+FROM countries
+WHERE safety_level IS NOT NULL
+ORDER BY iso2
+LIMIT 20;"
+```
+
+## Шаг 6 — Обновить memory-bank
+
+После выполнения задачи обнови файлы:
+- `memory-bank/architecture.md` — добавь новые поля в описание таблицы countries
+- `memory-bank/todo.md` — отметь выполнение пункты как выполненные ✅
+
+## Критерии готовности
+- [x] Миграция применена успешно ✅
+- [x] Модель обновлена ✅
+- [x] Схемы обновлены ✅
+- [x] Скрипт создан и запущен ✅
+- [x] Минимум 30 стран заполнены данными ✅
+- [x] GET /countries/{iso2} возвращает safety_level и cost_level ✅
+- [x] memory-bank обновлён ✅

@@ -6,6 +6,9 @@
 - [x] FastAPI приложение с async SQLAlchemy + PostgreSQL/PostGIS
 - [x] Redis кеширование (GeoJSON 24h, visa-map 1h)
 - [x] 250 стран с геометрией, языками, переводами, TLD
+- [x] Профили стран дополнены safety/cost метаданными
+  (`safety_level`, `safety_note`, `safety_source`, `safety_updated_at`,
+  `cost_level`, `cost_per_day_usd`, `cost_updated_at`)
 - [x] 39 402 визовых режима (из Passport Index CSV, confidence_level=3)
 - [x] Admin API с аутентификацией по X-Api-Key
 - [x] История изменений визовых политик (`visa_policy_history`)
@@ -15,6 +18,8 @@
 - [x] Docker Compose для dev окружения (PostgreSQL + Redis)
 - [x] Alembic миграции
 - [x] Скрипты загрузки данных (restcountries, Natural Earth, Passport Index)
+- [x] Добавлен локальный skill `fastapi-router-py` для генерации роутеров
+  FastAPI в стиле проекта `visa-map2`
 
 ### Frontend
 - [x] Next.js 16 + MapLibre GL + Maptiler + Tailwind CSS

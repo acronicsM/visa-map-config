@@ -32,6 +32,11 @@
 
 - **source_discovery_log** — результаты обнаружения локальных источников
 
+- **country_seasons** — сезонность погоды по странам:
+  id(UUID PK), country_id(FK -> countries.id, CASCADE), iso2, month(1..12),
+  season, geom(MultiPolygon/4326), created_at, updated_at,
+  уникальность (iso2, month)
+
 ## Данные
 - 250 стран (245 активных, 5 антарктических отключены)
 - 239 стран с геометрией (Natural Earth 10m shapefile)
@@ -46,6 +51,8 @@
 | GET | /countries | Список стран |
 | GET | /countries/geodata | GeoJSON (кеш 24h) |
 | GET | /countries/{iso2} | Детали страны |
+| GET | /country-seasons/{month}/geodata | GeoJSON сезонности за месяц |
+| GET | /country-seasons/{iso2} | Сезоны по стране (1..12) |
 | GET | /visa-map/{passport_iso2} | Карта виз (кеш 1h) |
 | GET | /visa-map/{passport_iso2}/{dest_iso2} | Детали пары |
 | PATCH | /admin/visa-policies/{id} | Обновить политику |

@@ -87,6 +87,8 @@ app/
 - MultiPolygon/SRID 4326 в PostGIS
 - `unary_union` при импорте (AU, FR имеют несколько записей в shapefile)
 - `ST_SimplifyPreserveTopology(geom, 0.05)` → GeoJSON ~5MB (вместо ~50MB)
+- Для weather seasons используется отдельная таблица `country_seasons`
+  с upsert по ключу (`iso2`, `month`) при импорте из GeoJSON
 
 ### История изменений
 - `visa_policy_history` — автоматически при каждом PATCH через Admin API
@@ -116,4 +118,13 @@ Admin API (PATCH /admin/visa-policies/{id})
     → обновление visa_policies
     → запись в visa_policy_history
     → инвалидация Redis кеша visa_map:{iso2}
+
+Country Seasons import (`scripts/import_country_seasons.py`)
+    → чтение `seasons_month_1..12.geojson` из `INPUT_FOLDER_SEASONS`
+    → нормализация геометрии Polygon -> MultiPolygon
+    → upsert в `country_seasons` по (`iso2`, `month`)
+
+Country Seasons API
+    → GET /country-seasons/{month}/geodata (FeatureCollection)
+    → GET /country-seasons/{iso2} (список сезонов по месяцам)
 ```

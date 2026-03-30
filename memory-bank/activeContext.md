@@ -2,8 +2,8 @@
 
 ## Текущий фокус (30 марта 2026)
 
-Расширение модели стран полями безопасности и стоимости отдыха
-(`safety_*`, `cost_*`) и базовое заполнение данных для всех стран.
+Реализация backend-модуля сезонности погоды по странам (`country_seasons`):
+таблица, API чтения и импорт GeoJSON по месяцам.
 
 ## Последние изменения
 
@@ -14,6 +14,16 @@
 - Обновлены ORM-модель `Country` и схема `CountryDetail`
 - Добавлен скрипт `scripts/seed_safety_cost.py` для рандомного заполнения
   safety/cost полей по всем странам
+- Реализован модуль `country_seasons` в backend:
+  - миграция `a1b2c3d4e5f6_add_country_seasons_table.py`
+  - ORM-модель `CountrySeason` + связь в `Country`
+  - Pydantic-схемы `app/schemas/country_season.py`
+  - API-роутер `GET /country-seasons/{month}/geodata`,
+    `GET /country-seasons/{iso2}`
+  - скрипт импорта `scripts/import_country_seasons.py`
+- Применена миграция `alembic upgrade head`
+- Выполнен импорт сезонов: в текущем наборе найдены файлы только
+  для месяцев 10-12 (месяцы 1-9 отсутствуют в `INPUT_FOLDER_SEASONS`)
 - Добавлен локальный Cursor skill
   `.cursor/skills/fastapi-router-py/SKILL.md` (адаптирован под структуру
   `visa-map2`: async FastAPI, `get_db`, `verify_api_key`, router->service)
@@ -27,11 +37,11 @@
 
 ## Следующие шаги
 
-1. Завершить лонгрид структуру главной страницы (баннеры, подвал)
-2. Реализовать детальную страницу страны (`/country/[iso2]`)
-3. Добавить статистику на главную
-4. Настроить APScheduler для автозапуска RSS мониторинга
-5. Подготовить деплой (Vercel + VPS/Railway)
+1. Догрузить season GeoJSON для месяцев 1..9 и повторно выполнить импорт
+2. Добавить кеширование для `GET /country-seasons/{month}/geodata` (опционально)
+3. Завершить лонгрид структуру главной страницы (баннеры, подвал)
+4. Реализовать детальную страницу страны (`/country/[iso2]`)
+5. Добавить статистику на главную
 
 ## Контекст для следующей сессии
 

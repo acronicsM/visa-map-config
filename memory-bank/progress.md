@@ -18,6 +18,8 @@
 - [x] Docker Compose для dev окружения (PostgreSQL + Redis)
 - [x] Alembic миграции
 - [x] Скрипты загрузки данных (restcountries, Natural Earth, Passport Index)
+- [x] Добавлены сезоны погоды по странам (`country_seasons`):
+  миграция, ORM, схемы, API-роутер и скрипт импорта
 - [x] Добавлен локальный skill `fastapi-router-py` для генерации роутеров
   FastAPI в стиле проекта `visa-map2`
 
@@ -40,6 +42,8 @@
 - [ ] Таблица очереди агрегатора (`aggregator_queue`)
 - [ ] APScheduler для автозапуска RSS мониторинга
 - [ ] Парсинг МИД сайтов для confidence_level=1
+- [ ] Догрузить данные seasons для месяцев 1..9
+  (`seasons_month_1.geojson` ... `seasons_month_9.geojson`)
 
 ### Frontend
 - [ ] Детальная страница страны (`/country/[iso2]`)
@@ -59,3 +63,5 @@
 - 11 стран без геометрии в Natural Earth shapefile
 - RSS мониторинг запускается вручную скриптом (нет автозапуска)
 - Maptiler ключ хардкодирован в `.env.local` (нужна ротация перед деплоем)
+- В текущем наборе входных season-файлов отсутствуют месяцы 1..9
+  (в БД загружены месяцы 10..12)

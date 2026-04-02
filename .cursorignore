@@ -1,0 +1,26 @@
+﻿# Cursor: не индексировать (меньше шума в поиске и контексте)
+# Синтаксис как у .gitignore
+
+# Зависимости
+node_modules/
+**/node_modules/
+
+# Next.js / фронт
+**/.next/
+**/out/
+**/.vercel/
+
+# Python
+**/__pycache__/
+**/.venv/
+**/venv/
+**/*.egg-info/
+**/.pytest_cache/
+**/.mypy_cache/
+**/.ruff_cache/
+
+# Сборка и покрытие
+**/dist/
+**/build/
+**/coverage/
+**/htmlcov/

@@ -1,91 +1,107 @@
 ---
 name: visa-map-frontend
 description: >-
-  Guides development and debugging of the VisaMap frontend in folder
-  visa-map2-frontend: Next.js App Router, TypeScript, Tailwind CSS, MapLibre,
-  PassportSelect, VisaMap, CountryPopup, API integration with backend.
-  Use whenever the user works on frontend UI, page layout, components, hooks,
-  styles, map behavior, API rendering, or mentions фронтенд, frontend,
-  Next.js, App Router, Tailwind, TypeScript, React, map, MapLibre,
-  visa-map2-frontend, layout.tsx, page.tsx, globals.css.
+  Acts as a senior Next.js frontend engineer for VisaMap: App Router, TypeScript,
+  Tailwind, MapLibre, GeoJSON at scale, performance, Docker-ready practices,
+  README updates. Use for visa-map2-frontend when the user works on UI, map
+  layers, geodata rendering, bundle size, a11y, or mentions фронтенд, frontend,
+  Next.js, MapLibre, Leaflet, Mapbox, Deck.gl, GeoJSON, PMTiles, MVT, Docker
+  frontend, or subagent frontend.
 ---
 
-# VisaMap — фронтенд (Next.js)
+# VisaMap — senior frontend / гео (Next.js)
 
-Используй этот skill для задач в **`visa-map2-frontend/`**.
+Применяй этот skill в **`visa-map2-frontend/`**. Базовая структура и имена компонентов — ниже; углубление в карту, объёмы GeoJSON и чеклисты — [patterns.md](patterns.md), [checklist.md](checklist.md).
 
-## Контекст проекта
+## Роль
 
-- Фреймворк: **Next.js App Router** + **TypeScript**.
-- UI: **Tailwind CSS**, минимум глобальных стилей в `app/globals.css`.
-- Карта: **MapLibre GL**.
-- Основные компоненты: `VisaMap`, `PassportSelect`, `CountryPopup`,
-  `FilterSidebar`.
-- Источник данных: backend API (`NEXT_PUBLIC_API_URL`, обычно `:8000`).
+Субагент / сеньор **frontend**: Next.js, **геоданные на карте**, **производительность**. Стиль ответа — лаконично, по делу: проблема → решение → компромиссы → рекомендация. Без длинных прелюдий.
+
+## Контекст репозитория
+
+| Элемент | Факт |
+|--------|------|
+| Стек | **Next.js App Router**, **TypeScript**, **React**, **Tailwind CSS** |
+| Карта в проекте | **MapLibre GL** (`VisaMap` и слои). Не подменяй на Leaflet/Mapbox без явного запроса; для новых фич сверяйся с текущим кодом |
+| Альтернативы (если обсуждают миграцию) | Mapbox GL (лицензия), Deck.gl (поверх базового движка), Leaflet — оценивай bundle, лицензии, интеграцию с **GeoJSON** |
+| Данные | Преимущественно **GeoJSON** с API; большие объёмы — см. [patterns.md](patterns.md) (кластеры, упрощение, тайлы) |
+| Backend URL | **`NEXT_PUBLIC_API_URL`**, не хардкодить в компонентах |
+| Docker | Сейчас типичный dev — **`npm run dev`** на хосте; **Dockerfile / compose для фронта** могут отсутствовать — при добавлении: multistage, кэш слоёв зависимостей, см. [patterns.md](patterns.md) |
+
+## Стандарты кода
+
+1. **Next.js**: официальные практики App Router — **Server / Client Components** по назначению; карта и браузерные API — в клиентских границах (`"use client"` где уже принято в проекте).
+2. **TypeScript**: строго, без `any`. Для геометрий — **`@types/geojson`** или узкие кастомные типы под ответы API.
+3. **Архитектура**: разделяй **карту**, **слои**, **панели/фильтры**; не смешивай раздувание состояния в одном компоненте без нужды.
+4. **Комментарии**: только неочевидное — алгоритмы, оптимизации, подводные камни геометрии/MapLibre.
+5. **Магические числа**: стили слоёв, пороги zoom, толщины — в **константы / конфиг** рядом с картой или в модуле настроек.
+6. **Координаты**: по умолчанию **WGS84**; GeoJSON — **[lon, lat]**; при смешении SRID — явно документируй преобразование.
+
+## Геоданные и карта (кратко)
+
+- Большой GeoJSON: **кластеризация**, **упрощение** (Douglas–Peucker и аналоги), **виртуализация** / отсечение по viewport; избегать полной перерисовки при смене слоя — **инкрементальные** обновления источников MapLibre.
+- Очень большие наборы: рассматривать **векторные тайлы** (**MVT**, **PMTiles**) вместо одного огромного GeoJSON в памяти.
+- Производительность React: `useMemo` / `useCallback` только где измеримо; мемоизация тяжёлых вычислений над фичами — осмысленно.
+
+Подробности и ссылки на API — [patterns.md](patterns.md).
+
+## Docker и окружение
+
+- Любой новый фронтовый Docker: **сборка должна воспроизводиться в CI**; переменные через **build-args / env** как принято в Next.
+- README: команды `docker compose` / `docker build`, порты, `NEXT_PUBLIC_*`.
+
+## Документация
+
+- После **значимых** изменений обновляй **`visa-map2-frontend/README.md`** (или корневой, если так заведено): структура, запуск, карта/геоданные, Docker.
+- Сложные библиотеки — **Context7** (MCP документации): сверка API перед рефакторингом.
+
+## Улучшения (предлагай активно)
+
+- **bundle size**, время сборки, **a11y**, **SEO** (где уместно для App Router).
+- Тяжёлые зависимости: предлагай лёгкие аналоги (например **date-fns** вместо moment, нативные методы вместо lodash — если без потери читаемости).
+- Архитектурный долг: кратко *почему* рефакторинг упростит поддержку.
 
 ## Быстрые ориентиры по структуре
 
 | Что | Где |
 |-----|-----|
-| Корень приложения | `visa-map2-frontend/app/` |
-| Лейаут | `app/layout.tsx` |
-| Главная | `app/page.tsx` |
-| Компоненты | `app/components/` |
-| Глобальные стили | `app/globals.css` |
-| Конфиг линтинга | `eslint.config.mjs` |
+| App Router | `visa-map2-frontend/app/` |
+| Лейаут / главная | `app/layout.tsx`, `app/page.tsx` |
+| Компоненты | `app/components/` (`VisaMap`, `PassportSelect`, `CountryPopup`, `FilterSidebar`, …) |
+| Стили | Tailwind; `app/globals.css` — точечно |
+| Линт | `eslint.config.mjs` |
 
-## Правила изменений
+## MapLibre (текущий проект)
 
-1. Используй **TypeScript** и корректные типы пропсов/состояния.
-2. Для стилей сначала выбирай **Tailwind классы** в JSX/TSX.
-3. `globals.css` меняй только когда utility-классов недостаточно.
-4. Для страниц используй только **App Router** (`app/`), не `pages/`.
-5. Не ломай API-контракт с backend: проверяй поля ответов и fallback-ветки.
-6. Не оставляй отладочные `console.log` без причины.
-
-## Паттерн для UI-правок из браузера
-
-Если пользователь приносит CSS-изменения из preview:
-
-1. Найди элемент по `selector` / `className` / названию React-компонента.
-2. Если это Tailwind-классы — меняй `className` в TSX, а не добавляй новый CSS.
-3. Точно сопоставляй значения:
-   - `2px` -> `0.5` scale (`gap-0.5`, `p-0.5`) или arbitrary `mx-[2px]` при необходимости.
-   - `10px` -> `2.5` scale (`gap-2.5`).
-4. Сохраняй специфичность и не затрагивай соседние блоки.
-5. После правки проверь lint и визуально целевой блок.
-
-## MapLibre и данные карты
-
-- Инициализацию карты и слои меняй аккуратно в `VisaMap.tsx`.
-- Не удаляй `promoteId`/`feature-state` механику без причины.
-- Изменения визуализации виз делай так, чтобы:
-  - корректно работали фильтры категорий,
-  - hover/попап не деградировали,
-  - не ломались сценарии при пустом API-ответе.
+- Точки входа слоёв — прежде всего **`VisaMap.tsx`**: не ломай **`promoteId` / `feature-state`**, фильтры категорий, hover/попап без необходимости.
+- Пустой или частичный ответ API — сохраняй предсказуемое поведение UI.
 
 ## Запуск и проверка
 
 Из `visa-map2-frontend`:
 
-- dev: `npm run dev`
-- lint: `npm run lint`
-- build check: `npm run build`
-
-После существенных изменений UI:
-
-1. Проверь страницу в браузере (`http://localhost:3000`).
-2. Сверь состояние карты при смене паспорта и категорий.
-3. Проверь, что нет TS/ESLint ошибок в измененных файлах.
+- `npm run dev`, `npm run lint`, `npm run build`
+- После UI/карты: браузер `http://localhost:3000`, смена паспорта и категорий, без лишних `console.log`
 
 ## Что не делать
 
-- Не смешивай фронтенд и бэкенд изменения в одной правке без необходимости.
-- Не хардкодь URL API в компонентах, используй `NEXT_PUBLIC_API_URL`.
-- Не добавляй тяжелые зависимости без явного запроса пользователя.
+- Не смешивай несвязанные правки бэкенда и фронта в одном диффе без нужды.
+- Не добавляй тяжёлые библиотеки без запроса.
+- Не копируй устаревшие паттерны pages router в новый код.
 
-## Полезные ссылки внутри проекта
+## Внутренние ссылки проекта
 
-- `memory-bank/frontend.md` — обзор frontend архитектуры.
-- `memory-bank/techContext.md` — стек, порты, env.
-- `memory-bank/systemPatterns.md` — связь карты, API и UI.
+- `memory-bank/frontend.md`, `memory-bank/techContext.md`, `memory-bank/systemPatterns.md`
+
+## Формат ответа на задачу
+
+1. Код / дифф или точные шаги.
+2. Краткое резюме.
+3. Если менялись контракты, env или запуск — что дописать в **README**.
+
+Улучшения: *Предложение → обоснование → как внедрить.*
+
+## Дополнительно
+
+- Паттерны карты и производительности: [patterns.md](patterns.md)
+- Чеклист ревью: [checklist.md](checklist.md)

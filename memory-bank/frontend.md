@@ -4,10 +4,13 @@
 app/
 ├── page.tsx              # Главная страница (лонгрид)
 ├── globals.css           # Глобальные стили
+├── trip/[iso2]/page.tsx  # Заглушка подборки путешествия по iso2
 └── components/
-    ├── VisaMap.tsx        # Главный компонент карты
-    ├── PassportSelect.tsx # Дропдаун выбора паспорта с поиском
-    └── CountryPopup.tsx   # Карточка страны при клике
+    ├── VisaMap.tsx         # Карта; опционально `onMatchingIso2sChange(iso2[])`
+    ├── FilterSidebar.tsx   # Фильтры главной
+    ├── TravelCollections.tsx # Лента направлений по фильтрам → ссылки на /trip/[iso2]
+    ├── PassportSelect.tsx  # Дропдаун паспорта (в сайдбаре)
+    └── CountryPopup.tsx    # Карточка страны при hover
 
 ## Карта (VisaMap.tsx)
 - MapLibre GL JS с подложкой Maptiler streets-v2 (светлая)
@@ -16,6 +19,8 @@ app/
 - Цвета виз через match expression по iso2
 - Hover эффект через feature-state
 - При клике: загрузка /countries/{iso2} + поиск в visaDataRef
+- После пересчёта раскраски вызывается `onMatchingIso2sChange` со списком iso2,
+  проходящих тот же составной фильтр (виза, safety/cost, язык, сезон)
 
 ## Цвета визовых категорий
 free:        #22c55e (зелёный)

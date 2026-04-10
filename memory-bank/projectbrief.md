@@ -16,7 +16,7 @@
 - Видеть точки интереса
 
 ## Репозитории
-- Backend: https://github.com/acronicsM/visa-map2 (папка /backend)
+- Backend: https://github.com/acronicsM/visa-map2 (корень репозитория, без подпапки `backend`)
 - Frontend: https://github.com/acronicsM/visa-map2-frontend
 
 ## Локальные пути

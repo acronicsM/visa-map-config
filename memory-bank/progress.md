@@ -10,7 +10,10 @@
   (`safety_level`, `safety_note`, `safety_source`, `safety_updated_at`,
   `cost_level`, `cost_per_day_usd`, `cost_updated_at`)
 - [x] 39 402 визовых режима (из Passport Index CSV, confidence_level=3)
-- [x] Admin API с аутентификацией по X-Api-Key
+- [x] Admin API с аутентификацией по X-Api-Key (`API_KEY` в `.env`)
+- [x] Импорт коэффициентов безопасности: `PUT /admin/countries/safety-final-scores`
+  (merged JSON → Redis + `countries.safety_level` в Postgres + сброс кеша GeoJSON);
+  `GET /countries/safety-final-scores`; пороги `SAFETY_SCORE_*` в настройках
 - [x] История изменений визовых политик (`visa_policy_history`)
 - [x] Confidence level система (3 уровня достоверности)
 - [x] RSS мониторинг (23 активных источника)

@@ -33,7 +33,7 @@
 visa-map2/
 ├── app/
 │   ├── models/          # ORM: country, passport, visa_policy, rss_source, ...
-│   ├── routers/         # Endpoints: admin.py, countries.py, visa_map.py
+│   ├── routers/         # admin, countries, visa_map, country_seasons
 │   ├── schemas/         # Pydantic: admin.py, country.py, visa_policy.py, common.py
 │   ├── services/        # Бизнес-логика
 │   ├── main.py, config.py, database.py, cache.py, ...
@@ -81,11 +81,21 @@ psql -h localhost -p 5442 -U visauser -d visamap
 
 ### Переменные окружения
 
-**Backend (`.env`)**
+**Backend (`.env`)** — фактически `pydantic-settings` читает отдельные поля в
+`app/config.py` (не обязательно одна строка `DATABASE_URL`):
+
 ```
-DATABASE_URL=postgresql+asyncpg://visauser:visapass@localhost:5442/visamap
-REDIS_URL=redis://localhost:6379
-ADMIN_API_KEY=dev-secret-key
+POSTGRES_USER=...
+POSTGRES_PASSWORD=...
+POSTGRES_DB=...
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5442
+REDIS_HOST=localhost
+REDIS_PORT=6379
+API_KEY=dev-secret-key
+# опционально, маппинг safety_final_score → safety_level:
+# SAFETY_SCORE_SAFE_MIN=70
+# SAFETY_SCORE_UNSAFE_MIN=40
 ```
 
 **Frontend (`.env.local`)**

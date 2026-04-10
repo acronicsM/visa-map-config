@@ -41,13 +41,19 @@ app/
 - Модель (`models/`) описывает таблицы через SQLAlchemy ORM
 
 ### Кеширование
-- GeoJSON (`/countries/geodata`): Redis, TTL=24h, ключ `geodata`
+- GeoJSON (`/countries/geodata`): Redis, TTL=24h, ключ **`countries:geodata:v2`**
+  (`GEODATA_KEY` в `cache.py`; в `properties` фич — в т.ч. `safety_level`, `cost_*`)
+- Справочник имён: **`countries:names:v1`**, TTL 24h
+- Карта баллов безопасности (без TTL до перезаписи): **`countries:safety_final_scores:v1`**
+  (`SAFETY_FINAL_SCORES_KEY`), запись через `cache_set_persistent`
 - Visa map (`/visa-map/{iso2}`): Redis, TTL=1h, ключ `visa_map:{iso2}`
-- При обновлении admin-ом — инвалидация соответствующего ключа
+- При PATCH визовой политики — инвалидация `visa_map:{passport_iso2}`
+- При **`PUT /admin/countries/safety-final-scores`** — инвалидация **`countries:geodata:v2`**
+  после коммита в Postgres
 
 ### Аутентификация Admin API
 - Header: `X-Api-Key: <секрет из .env>`
-- Dependency `verify_api_key` в `dependencies.py`
+- Dependency **`require_api_key`** в `dependencies.py` (настройка **`API_KEY`** в `config.py`)
 
 ### Confidence Level (доверие к данным)
 ```
@@ -118,6 +124,12 @@ Admin API (PATCH /admin/visa-policies/{id})
     → обновление visa_policies
     → запись в visa_policy_history
     → инвалидация Redis кеша visa_map:{iso2}
+
+Admin API (PUT /admin/countries/safety-final-scores)
+    → store_safety_final_scores в admin_service
+    → ORM UPDATE countries по iso2 (safety_level из safety_final_score + пороги)
+    → Redis: полная карта баллов (persistent key)
+    → cache_delete(countries:geodata:v2)
 
 Country Seasons import (`scripts/import_country_seasons.py`)
     → чтение `seasons_month_1..12.geojson` из `INPUT_FOLDER_SEASONS`

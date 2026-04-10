@@ -10,7 +10,10 @@
   country_tld, name_translations (jsonb), confidence_level,
   safety_level(safe/unsafe/dangerous), safety_note, safety_source,
   safety_updated_at, cost_level(low/medium/high), cost_per_day_usd,
-  cost_updated_at
+  cost_updated_at.
+  При `PUT /admin/countries/safety-final-scores` числа из merged JSON пишутся в Redis
+  (`countries:safety_final_scores:v1`) и маппятся в **safety_level** (safe/unsafe/dangerous)
+  в Postgres по порогам `SAFETY_SCORE_SAFE_MIN` / `SAFETY_SCORE_UNSAFE_MIN` в `.env`.
 
 - **passports** — id, country_id(FK), name_ru, type(regular/diplomatic/service)
 
@@ -51,10 +54,12 @@
 | GET | /countries | Список стран |
 | GET | /countries/geodata | GeoJSON (кеш 24h) |
 | GET | /countries/{iso2} | Детали страны |
+| GET | /countries/safety-final-scores | Карта iso2 → safety_final_score (Redis) |
 | GET | /country-seasons/{month}/geodata | GeoJSON сезонности за месяц |
 | GET | /country-seasons/{iso2} | Сезоны по стране (1..12) |
 | GET | /visa-map/{passport_iso2} | Карта виз (кеш 1h) |
 | GET | /visa-map/{passport_iso2}/{dest_iso2} | Детали пары |
+| PUT | /admin/countries/safety-final-scores | Merged JSON (`by_iso2`) → Redis + Postgres `safety_level` + сброс кеша geodata |
 | PATCH | /admin/visa-policies/{id} | Обновить политику |
 | POST | /admin/news-triggers | Создать триггер |
 | GET | /admin/news-triggers | Список триггеров |

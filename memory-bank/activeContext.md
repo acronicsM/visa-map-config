@@ -1,12 +1,22 @@
 # Активный контекст
 
-## Текущий фокус (6 апреля 2026)
+## Текущий фокус (10 апреля 2026)
 
-Доработка лонгрида главной (`visa-map2-frontend`): лента стран по текущим
-фильтрам карты и задел под страницу подборки путешествия.
+Связка **безопасность**: импорт merged JSON → Redis + маппинг в `countries.safety_level`
+для фильтров и GeoJSON; документация в `visa-map2/README.md`. Параллельно —
+лонгрид главной и подборки путешествий.
 
 ## Последние изменения
 
+- **Backend — импорт safety scores**: `PUT /admin/countries/safety-final-scores`
+  (JSON `by_iso2`, поле `safety_final_score`), защита `X-Api-Key`; карта баллов
+  в Redis (`countries:safety_final_scores:v1`, `cache_set_persistent`); обновление
+  в Postgres `safety_level`, `safety_updated_at`, `safety_source` через ORM-`UPDATE`
+  по `iso2` (отказ от `jsonb_to_recordset` в сыром SQL — с asyncpg не обновляло строки);
+  пороги `SAFETY_SCORE_SAFE_MIN` / `SAFETY_SCORE_UNSAFE_MIN` в `app/config.py` + `.env`;
+  `GET /countries/safety-final-scores` (публично); после импорта — `cache_delete(GEODATA_KEY)`
+- Сервис маппинга: `app/services/safety_level_mapping.py`
+- Обновлён **`visa-map2/README.md`** (эндпоинты, импорт, env, структура репозитория)
 - Главная: `TravelCollections` показывает страны, проходящие составной фильтр
   карты; `VisaMap` отдаёт список через `onMatchingIso2sChange`; добавлена
   заглушка `/trip/[iso2]` (перелёты/отели/инфо — позже)
@@ -42,11 +52,11 @@
 
 1. Догрузить season GeoJSON для месяцев 1..9 и повторно выполнить импорт
 2. Добавить кеширование для `GET /country-seasons/{month}/geodata` (опционально)
-3. Завершить лонгрид структуру главной страницы (баннеры, подвал)
-4. Наполнить `/trip/[iso2]` (авиа, отели, справка) и связать с API при
-   необходимости
-5. Реализовать детальную страницу страны (`/country/[iso2]`)
-6. Добавить статистику на главную
+3. Фронт: явно использовать `safety_level` / при необходимости `safety-final-scores` в фильтрах и легенде
+4. Завершить лонгрид структуру главной страницы (баннеры, подвал)
+5. Наполнить `/trip/[iso2]` (авиа, отели, справка) и связать с API при необходимости
+6. Реализовать детальную страницу страны (`/country/[iso2]`)
+7. Добавить статистику на главную
 
 ## Контекст для следующей сессии
 

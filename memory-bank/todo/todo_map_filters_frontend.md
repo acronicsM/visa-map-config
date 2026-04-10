@@ -26,7 +26,7 @@
 
 - [x] В `get_countries_geodata` и `get_country_geodata` добавить поля в `select` и в `properties` GeoJSON.
 - [x] Сброс устаревшего кеша геоданных (новый ключ Redis `countries:geodata:v2` или `cache_delete` при обновлении стран).
-- [ ] При появлении API/админки массового обновления стран — вызывать инвалидацию `GEODATA_KEY` из сервиса обновления.
+- [x] Массовое обновление безопасности: `PUT /admin/countries/safety-final-scores` вызывает `cache_delete(GEODATA_KEY)` после коммита в Postgres.
 
 ### Frontend (`visa-map2-frontend`)
 

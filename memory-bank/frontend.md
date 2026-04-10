@@ -14,7 +14,9 @@ app/
 
 ## Карта (VisaMap.tsx)
 - MapLibre GL JS с подложкой Maptiler streets-v2 (светлая)
-- GeoJSON из /countries/geodata с promoteId: 'iso2'
+- GeoJSON из `/countries/geodata` с `promoteId: 'iso2'`; в `properties` есть
+  `safety_level` (после admin-импорта merged JSON) — для фильтров/раскраски
+- При необходимости точного балла: публичный `GET /countries/safety-final-scores`
 - Слои: countries-fill, countries-border, countries-hover
 - Цвета виз через match expression по iso2
 - Hover эффект через feature-state

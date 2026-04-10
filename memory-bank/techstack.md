@@ -7,7 +7,7 @@
 - GeoAlchemy2 0.15.0
 - Alembic 1.13.1
 - PostgreSQL 16 + PostGIS 3
-- Redis (кеш GeoJSON 24h, visa-map 1h)
+- Redis (кеш GeoJSON 24h, visa-map 1h; persistent snapshot `safety_final_scores`)
 - asyncpg 0.29.0
 - httpx, feedparser, beautifulsoup4
 - Docker (только для БД и Redis, не для app)

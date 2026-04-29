@@ -1,12 +1,38 @@
 # Активный контекст
 
-## Текущий фокус (10 апреля 2026)
+## Текущий фокус (29 апреля 2026)
 
-Связка **безопасность**: импорт merged JSON → Redis + маппинг в `countries.safety_level`
-для фильтров и GeoJSON; документация в `visa-map2/README.md`. Параллельно —
-лонгрид главной и подборки путешествий.
+Реализация **матрицы стоимостей путешествия**: замена скалярных `cost_level` / `cost_per_day_usd`
+в `countries` на таблицу `travel_cost_matrix` (home_iso2 x dest_iso2 x budget_tier).
+- Admin endpoint `PUT /admin/travel-costs` для загрузки JSON через multipart.
+- Public endpoint `GET /travel-costs/{home_iso2}?budget_tier=...` для получения score map.
+- Frontend: фильтр стоимости теперь зависит от выбранного паспорта (home_iso2);
+  раскраска карты по score buckets (< 0.5 зелёный, 0.5–1.0 жёлтый, > 1.0 красный).
 
 ## Последние изменения
+
+- **Backend — матрица стоимостей**:
+  - Удалены `cost_level`, `cost_per_day_usd`, `cost_updated_at` из `countries` (Alembic миграция).
+  - Создана таблица `travel_cost_matrix` с полями `score_cheap`, `score_normal`, `score_expensive`,
+    `daily_cost_*` и индексами `(home_iso2)`, `(home_iso2, dest_iso2)`.
+  - `PUT /admin/travel-costs` — загрузка `travel_country_model_tier_means.json` (~50 MB)
+    через `UploadFile` (multipart), валидация content-type и размера, парсинг JSON,
+    UPSERT батчами по 1000 записей (`insert().on_conflict_do_update`),
+    инвалидация Redis (`GEODATA_KEY`, `travel_costs:*`).
+  - `GET /travel-costs/{home_iso2}?budget_tier=cheap|normal|expensive` — SELECT из
+    `travel_cost_matrix` WHERE `home_iso2 = ?`, кеш Redis (`travel_costs:{home_iso2}:{tier}`, TTL 24h).
+  - GeoJSON properties v3: убраны `cost_level` / `cost_per_day_usd`.
+
+- **Frontend — фильтр бюджета**:
+  - `FilterSidebar`: заменён набор чекбоксов уровней `cost_level` на выбор одного
+    `budgetTier` (cheap / normal / expensive). При выборе автоматически включается
+    режим раскраски «budget».
+  - `VisaMap`: при смене паспорта + `budgetTier` вызывается `GET /travel-costs/{home_iso2}`;
+    scores мержатся в paint expression MapLibre (match по iso2).
+  - `CountryPopup`: убраны `cost_level` / `cost_per_day_usd`; при наличии `cost_score`
+    показывается текст («Дешевле, чем дома» / «Примерно как дома» / «Дороже, чем дома»).
+  - `page.tsx`: состояние `budgetTier` (string | null); `useEffect` загружает
+    travel-costs данные при изменении `passport` или `budgetTier`.
 
 - **Backend — импорт safety scores**: `PUT /admin/countries/safety-final-scores`
   (JSON `by_iso2`, поле `safety_final_score`), защита `X-Api-Key`; карта баллов
@@ -50,13 +76,14 @@
 
 ## Следующие шаги
 
-1. Догрузить season GeoJSON для месяцев 1..9 и повторно выполнить импорт
-2. Добавить кеширование для `GET /country-seasons/{month}/geodata` (опционально)
-3. Фронт: явно использовать `safety_level` / при необходимости `safety-final-scores` в фильтрах и легенде
-4. Завершить лонгрид структуру главной страницы (баннеры, подвал)
-5. Наполнить `/trip/[iso2]` (авиа, отели, справка) и связать с API при необходимости
-6. Реализовать детальную страницу страны (`/country/[iso2]`)
-7. Добавить статистику на главную
+1. Запустить `alembic upgrade head` (миграция drop cost + create travel_cost_matrix)
+2. Загрузить `travel_country_model_tier_means.json` через `PUT /admin/travel-costs`
+3. Проверить `GET /travel-costs/RU?budget_tier=cheap` в браузере
+4. Догрузить season GeoJSON для месяцев 1..9 и повторно выполнить импорт
+5. Завершить лонгрид структуру главной страницы (баннеры, подвал)
+6. Наполнить `/trip/[iso2]` (авиа, отели, справка) и связать с API при необходимости
+7. Реализовать детальную страницу страны (`/country/[iso2]`)
+8. Добавить статистику на главную
 
 ## Контекст для следующей сессии
 

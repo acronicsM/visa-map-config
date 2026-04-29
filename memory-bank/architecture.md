@@ -9,8 +9,7 @@
   primary_language (ISO 639-3), language_name, all_languages (jsonb),
   country_tld, name_translations (jsonb), confidence_level,
   safety_level(safe/unsafe/dangerous), safety_note, safety_source,
-  safety_updated_at, cost_level(low/medium/high), cost_per_day_usd,
-  cost_updated_at.
+  safety_updated_at.
   При `PUT /admin/countries/safety-final-scores` числа из merged JSON пишутся в Redis
   (`countries:safety_final_scores:v1`) и маппятся в **safety_level** (safe/unsafe/dangerous)
   в Postgres по порогам `SAFETY_SCORE_SAFE_MIN` / `SAFETY_SCORE_UNSAFE_MIN` в `.env`.
@@ -40,6 +39,14 @@
   season, geom(MultiPolygon/4326), created_at, updated_at,
   уникальность (iso2, month)
 
+- **travel_cost_matrix** — матрица стоимости путешествия (home_iso2 x dest_iso2 x budget_tier):
+  id(UUID PK), home_iso2(VARCHAR(2)), dest_iso2(VARCHAR(2)),
+  score_cheap(NUMERIC(10,4)), score_normal(NUMERIC(10,4)),
+  score_expensive(NUMERIC(10,4)), daily_cost_cheap(NUMERIC(10,4)),
+  daily_cost_normal(NUMERIC(10,4)), daily_cost_expensive(NUMERIC(10,4)),
+  created_at, updated_at,
+  уникальность (home_iso2, dest_iso2)
+
 ## Данные
 - 250 стран (245 активных, 5 антарктических отключены)
 - 239 стран с геометрией (Natural Earth 10m shapefile)
@@ -59,6 +66,8 @@
 | GET | /country-seasons/{iso2} | Сезоны по стране (1..12) |
 | GET | /visa-map/{passport_iso2} | Карта виз (кеш 1h) |
 | GET | /visa-map/{passport_iso2}/{dest_iso2} | Детали пары |
+| GET | /travel-costs/{home_iso2} | Матрица стоимостей по budget_tier (кеш 24h) |
+| PUT | /admin/travel-costs | Загрузка travel_country_model_tier_means.json (multipart) |
 | PUT | /admin/countries/safety-final-scores | Merged JSON (`by_iso2`) → Redis + Postgres `safety_level` + сброс кеша geodata |
 | PATCH | /admin/visa-policies/{id} | Обновить политику |
 | POST | /admin/news-triggers | Создать триггер |

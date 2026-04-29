@@ -6,9 +6,11 @@
 - [x] FastAPI приложение с async SQLAlchemy + PostgreSQL/PostGIS
 - [x] Redis кеширование (GeoJSON 24h, visa-map 1h)
 - [x] 250 стран с геометрией, языками, переводами, TLD
-- [x] Профили стран дополнены safety/cost метаданными
-  (`safety_level`, `safety_note`, `safety_source`, `safety_updated_at`,
-  `cost_level`, `cost_per_day_usd`, `cost_updated_at`)
+- [x] Профили стран дополнены safety метаданными
+  (`safety_level`, `safety_note`, `safety_source`, `safety_updated_at`)
+- [x] Матрица стоимостей путешествия `travel_cost_matrix` (home_iso2 x dest_iso2 x budget_tier):
+  UPSERT через `PUT /admin/travel-costs` (multipart JSON), чтение через
+  `GET /travel-costs/{home_iso2}?budget_tier=...`, Redis кеш 24h
 - [x] 39 402 визовых режима (из Passport Index CSV, confidence_level=3)
 - [x] Admin API с аутентификацией по X-Api-Key (`API_KEY` в `.env`)
 - [x] Импорт коэффициентов безопасности: `PUT /admin/countries/safety-final-scores`
@@ -25,6 +27,8 @@
   миграция, ORM, схемы, API-роутер и скрипт импорта
 - [x] Добавлен локальный skill `fastapi-router-py` для генерации роутеров
   FastAPI в стиле проекта `visa-map2`
+- [x] Alembic миграция `cce34f097d9d`: удаление `cost_level`, `cost_per_day_usd`,
+  `cost_updated_at` из `countries` + создание `travel_cost_matrix`
 
 ### Frontend
 - [x] Next.js 16 + MapLibre GL + Maptiler + Tailwind CSS
@@ -37,6 +41,9 @@
   iso2, проходящих тот же составной фильтр, что и раскраска карты (колбэк
   `onMatchingIso2sChange` из `VisaMap`)
 - [x] Заглушка маршрута подборки путешествия `app/trip/[iso2]/page.tsx`
+- [x] Фильтр стоимости отдыха на фронте: выбор `budgetTier` (cheap/normal/expensive)
+  привязан к паспорту (home_iso2); карта раскрашивается по score buckets
+  из `GET /travel-costs/{home_iso2}`
 
 ## Что в процессе
 

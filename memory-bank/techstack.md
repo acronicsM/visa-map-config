@@ -17,7 +17,7 @@
 - Next.js 16.2.1 (App Router, TypeScript)
 - MapLibre GL JS
 - Tailwind CSS
-- Maptiler (streets-v2 стиль, светлая тема)
+- Maptiler (`NEXT_PUBLIC_MAPTILER_STYLE`, по умолчанию в приложении — `basic-v2`)
 
 ## Инфраструктура
 - Docker Compose (postgres + redis)

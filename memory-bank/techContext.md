@@ -24,7 +24,7 @@
 | Язык | TypeScript | — |
 | Карта | MapLibre GL JS | — |
 | Стили | Tailwind CSS | — |
-| Картографический тайл | Maptiler (streets-v2) | — |
+| Картографический тайл | Maptiler (стиль из `NEXT_PUBLIC_MAPTILER_STYLE`, по умолчанию на клиенте `basic-v2`) | — |
 
 ## Структура репозиториев
 
@@ -33,7 +33,7 @@
 visa-map2/
 ├── app/
 │   ├── models/          # ORM: country, passport, visa_policy, rss_source, ...
-│   ├── routers/         # admin, countries, visa_map, country_seasons
+│   ├── routers/         # admin, countries, visa_map, country_seasons, travel_costs
 │   ├── schemas/         # Pydantic: admin.py, country.py, visa_policy.py, common.py
 │   ├── services/        # Бизнес-логика
 │   ├── main.py, config.py, database.py, cache.py, ...
@@ -98,9 +98,10 @@ API_KEY=dev-secret-key
 # SAFETY_SCORE_UNSAFE_MIN=40
 ```
 
-**Frontend (`.env.local`)**
+**Frontend (`.env.local`)** — см. `visa-map2-frontend/.env.example`:
 ```
-NEXT_PUBLIC_MAPTILER_KEY=QSXDQ2qaHgSaUcWyPlkF
+NEXT_PUBLIC_MAPTILER_KEY=
+NEXT_PUBLIC_MAPTILER_STYLE=basic-v2
 NEXT_PUBLIC_API_URL=http://localhost:8000
 ```
 

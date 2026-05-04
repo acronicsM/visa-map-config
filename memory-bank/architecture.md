@@ -74,5 +74,4 @@
 | GET | /admin/news-triggers | Список триггеров |
 | PATCH | /admin/news-triggers/{id}/status | Обновить статус |
 
-## Аутентификация Admin API
-Header: X-Api-Key: dev-secret-key
+Header: X-Api-Key: `<API_KEY из .env>`

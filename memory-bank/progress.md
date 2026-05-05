@@ -11,6 +11,11 @@
 - [x] Матрица стоимостей путешествия `travel_cost_matrix` (home_iso2 x dest_iso2 x budget_tier):
   UPSERT через `PUT /admin/travel-costs` (multipart JSON), чтение через
   `GET /travel-costs/{home_iso2}?budget_tier=...`, Redis кеш 24h
+- [x] Данные точного бюджета путешественника:
+  `GET /travel-costs/{home_iso2}/exact-budget-data` отдаёт
+  `income_daily_usd`, валюту паспорта и `daily_cost_*`; `GET /travel-costs/currencies`
+  отдаёт популярные валюты, `GET /travel-costs/fx-rate` — кешированный курс
+  USD→валюта для сравнения дневного бюджета
 - [x] 39 402 визовых режима (из Passport Index CSV, confidence_level=3)
 - [x] Admin API с аутентификацией по X-Api-Key (`API_KEY` в `.env`)
 - [x] Импорт коэффициентов безопасности: `PUT /admin/countries/safety-final-scores`
@@ -44,6 +49,10 @@
 - [x] Фильтр стоимости отдыха на фронте: выбор `budgetTier` (cheap/normal/expensive)
   привязан к паспорту (home_iso2); карта раскрашивается по score buckets
   из `GET /travel-costs/{home_iso2}`
+- [x] Точный бюджет в сайдбаре: «Уточнить бюджет» автозаполняет сумму
+  `income_daily_usd * курс USD→выбранная валюта * 10`, дни `10`, позволяет
+  сменить валюту бюджета, считает дневной бюджет в USD и раскрашивает карту
+  по категориям `daily_cost_cheap/normal/expensive`
 
 ## Что в процессе
 

@@ -1,12 +1,16 @@
 # Активный контекст
 
-## Текущий фокус (4 мая 2026)
+## Текущий фокус (5 мая 2026)
 
-- **Документация**: синхронизированы `visa-map2/README.md`, `visa-map2-frontend/README.md` и файлы Memory Bank с фактическим API (travel-costs, country-seasons, отсутствие cost в GeoJSON).
+- **Точный бюджет путешественника**: поток exact-budget поверх `travel_cost_matrix`
+  использует `income_daily_usd` как канонический доход, backend отдаёт список
+  популярных валют и кешированный курс USD→выбранная валюта (Redis 24h).
+  Сайдбар переключает бюджет между «Ощущения бюджета» (tier/score) и
+  «Уточнить бюджет» (сумма + дни + валюта, сравнение с `daily_cost_*` в USD).
 
 ## Реализовано недавно (кратко)
 
-- **Матрица стоимостей** (`travel_cost_matrix`): `PUT /admin/travel-costs` (multipart JSON), публичные `GET /travel-costs/{home_iso2}?budget_tier=…`, `GET /travel-costs/score-bands`; на фронте режим раскраски «бюджет» завязан на паспорт (home) и tiers cheap/normal/expensive.
+- **Матрица стоимостей** (`travel_cost_matrix`): `PUT /admin/travel-costs` (multipart JSON), публичные `GET /travel-costs/{home_iso2}?budget_tier=…`, `GET /travel-costs/{home_iso2}/exact-budget-data`, `GET /travel-costs/score-bands`; на фронте режим раскраски «бюджет» поддерживает tiers cheap/normal/expensive и точную сумму на поездку.
 - **Безопасность**: импорт `PUT /admin/countries/safety-final-scores`, Redis-снимок баллов, маппинг в `countries.safety_level`, публичный `GET /countries/safety-final-scores`.
 - **Сезоны**: API `country-seasons`, импорт GeoJSON по месяцам; в полном наборе входных файлов исторически встречались только месяцы 10–12.
 - **Фронт**: `TravelCollections` + заглушка `/trip/[iso2]`; `VisaMap` отдаёт список iso2 под фильтры через `onMatchingIso2sChange`.
@@ -26,7 +30,7 @@
 
 ## Контекст для следующей сессии
 
-- Репозитории в одном workspace: `visa-map2` (backend), `visa-map2-frontend` (frontend).
+- Репозитории в одном workspace: корневой `README.md` описывает связку; код — в `visa-map2` (backend) и `visa-map2-frontend` (frontend).
 - Инфраструктура: `docker compose up -d` в каталоге бэкенда.
 - Backend: `python -m uvicorn app.main:app --reload --port 8000`
 - Frontend: `npm run dev`

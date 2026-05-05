@@ -19,6 +19,8 @@
 - Backend: https://github.com/acronicsM/visa-map2 (корень репозитория, без подпапки `backend`)
 - Frontend: https://github.com/acronicsM/visa-map2-frontend
 
+Локальный workspace с обоими каталогами: в корне репозитория с документацией см. `README.md` (обзор и ссылки на memory-bank).
+
 ## Локальные пути
 Строятся относительно корня проекта (workspace)
 - Backend: \visa-map2

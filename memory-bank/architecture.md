@@ -44,6 +44,8 @@
   score_cheap(NUMERIC(10,4)), score_normal(NUMERIC(10,4)),
   score_expensive(NUMERIC(10,4)), daily_cost_cheap(NUMERIC(10,4)),
   daily_cost_normal(NUMERIC(10,4)), daily_cost_expensive(NUMERIC(10,4)),
+  home_currency(VARCHAR(3)), income_daily(NUMERIC(12,4)),
+  income_daily_usd(NUMERIC(12,4)), usd_to_home_rate(NUMERIC(18,8)),
   created_at, updated_at,
   уникальность (home_iso2, dest_iso2)
 
@@ -66,7 +68,11 @@
 | GET | /country-seasons/{iso2} | Сезоны по стране (1..12) |
 | GET | /visa-map/{passport_iso2} | Карта виз (кеш 1h) |
 | GET | /visa-map/{passport_iso2}/{dest_iso2} | Детали пары |
+| GET | /travel-costs/score-bands | Пороги score и цвета для карты (кеш 24h) |
 | GET | /travel-costs/{home_iso2} | Матрица стоимостей по budget_tier (кеш 24h) |
+| GET | /travel-costs/{home_iso2}/exact-budget-data | Данные для точного бюджета: income_daily_usd, валюта паспорта и daily_cost_* |
+| GET | /travel-costs/currencies | Популярные валюты для ввода точного бюджета |
+| GET | /travel-costs/fx-rate | Курс USD→выбранная валюта для точного бюджета (Redis 24h) |
 | PUT | /admin/travel-costs | Загрузка travel_country_model_tier_means.json (multipart) |
 | PUT | /admin/countries/safety-final-scores | Merged JSON (`by_iso2`) → Redis + Postgres `safety_level` + сброс кеша geodata |
 | PATCH | /admin/visa-policies/{id} | Обновить политику |

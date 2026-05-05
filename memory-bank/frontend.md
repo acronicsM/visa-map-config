@@ -7,7 +7,7 @@ app/
 ├── trip/[iso2]/page.tsx  # Заглушка подборки путешествия по iso2
 └── components/
     ├── VisaMap.tsx         # Карта; опционально `onMatchingIso2sChange(iso2[])`
-    ├── FilterSidebar.tsx   # Фильтры главной
+    ├── FilterSidebar.tsx   # Фильтры главной (секция citizenship в UI — «Визовые режимы»)
     ├── TravelCollections.tsx # Лента направлений по фильтрам → ссылки на /trip/[iso2]
     ├── PassportSelect.tsx  # Дропдаун паспорта (в сайдбаре)
     └── CountryPopup.tsx    # Карточка страны при hover
@@ -17,8 +17,14 @@ app/
 - GeoJSON из `/countries/geodata` с `promoteId: 'iso2'`; в `properties` есть
   `safety_level` (после admin-импорта merged JSON) — для фильтров/раскраски
 - При необходимости точного балла безопасности: публичный `GET /countries/safety-final-scores`
-- Относительная стоимость: `GET /travel-costs/{home_iso2}?budget_tier=cheap|normal|expensive` и
-  пороги/подписи `GET /travel-costs/score-bands` (клиент кеширует bands для paint и попапа)
+- Бюджет:
+  - «Ощущения бюджета»: `GET /travel-costs/{home_iso2}?budget_tier=cheap|normal|expensive`
+    и пороги/подписи `GET /travel-costs/score-bands`;
+  - «Уточнить бюджет»: `GET /travel-costs/{home_iso2}/exact-budget-data`,
+    `GET /travel-costs/currencies` и `GET /travel-costs/fx-rate?currency=...`;
+    автозаполнение `income_daily_usd * курс USD→выбранная валюта * 10`,
+    пользователь может сменить валюту бюджета, сравнение всегда идёт в USD
+    с `daily_cost_cheap|normal|expensive`.
 - Слои: countries-fill, countries-border, countries-hover
 - Цвета виз через match expression по iso2
 - Hover эффект через feature-state
@@ -51,9 +57,9 @@ unknown:        #1e293b (нет данных)
 ## Режимы раскраски карты (MapColorMode)
 | Режим | Источник данных | Механика |
 |-------|----------------|---------|
-| citizenship | `GET /visa-map/{iso2}` | Цвет по visa_category |
+| citizenship | `GET /visa-map/{iso2}` | Цвет по visa_category (в сайдбаре — «Визовые режимы») |
 | safety | `GET /countries/geodata` (properties.safety_level) | Цвет по safety_level с фильтром |
-| budget | `/travel-costs/score-bands` + `/travel-costs/{home_iso2}?budget_tier=...` | Цвет по configurable bands |
+| budget | `/travel-costs/score-bands` + `/travel-costs/{home_iso2}?budget_tier=...` или `/travel-costs/{home_iso2}/exact-budget-data` | Цвет по budget bands; рельса cheap/normal/expensive — «Ощущения бюджета», раскрытый калькулятор — «Уточнить бюджет» |
 | season | `GET /country-seasons/{month}/geodata` | Цвет по season_color + фильтр |
 | language | `GET /countries` (official_language_codes) | Бинарная заливка |
 | vacation | — | Заглушка |

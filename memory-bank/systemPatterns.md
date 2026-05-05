@@ -43,7 +43,7 @@ app/
 ### Кеширование
 - GeoJSON (`/countries/geodata`): Redis, TTL=24h, ключ **`countries:geodata:v3`**
   (`GEODATA_KEY` в `cache.py`; в `properties` фич — `safety_level`)
-- Справочник имён: **`countries:names:v1`**, TTL 24h
+- Справочник имён: **`countries:names:v3`**, TTL 24h
 - Карта баллов безопасности (без TTL до перезаписи): **`countries:safety_final_scores:v1`**
   (`SAFETY_FINAL_SCORES_KEY`), запись через `cache_set_persistent`
 - Visa map (`/visa-map/{iso2}`): Redis, TTL=1h, ключ `visa_map:{iso2}`
@@ -52,6 +52,7 @@ app/
   после коммита в Postgres
 - При **`PUT /admin/travel-costs`** — инвалидация **`countries:geodata:v3`** и
   **`travel_costs:*`** после UPSERT в Postgres
+- Курсы точного бюджета кешируются отдельно: **`fx:usd_to:{currency}`**, TTL 24h.
 
 ### Аутентификация Admin API
 - Header: `X-Api-Key: <секрет из .env>`
@@ -79,7 +80,7 @@ app/
 ```
 
 ### Паттерн карты (VisaMap.tsx)
-1. Инициализация MapLibre GL с подложкой Maptiler streets-v2
+1. Инициализация MapLibre GL с подложкой Maptiler (стиль из `NEXT_PUBLIC_MAPTILER_STYLE`, типично `basic-v2`)
 2. Загрузка GeoJSON из `/countries/geodata` → source `countries` с `promoteId: 'iso2'`
 3. Три слоя: `countries-fill`, `countries-border`, `countries-hover`
 4. При выборе паспорта: запрос `/visa-map/{iso2}` → `setPaintProperty` с `match` expression

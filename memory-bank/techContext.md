@@ -96,6 +96,9 @@ API_KEY=dev-secret-key
 # опционально, маппинг safety_final_score → safety_level:
 # SAFETY_SCORE_SAFE_MIN=70
 # SAFETY_SCORE_UNSAFE_MIN=40
+# опционально, FX snapshot для точного бюджета (ожидается JSON rates от USD):
+# FX_RATES_URL=https://open.er-api.com/v6/latest/USD
+# FX_REQUEST_TIMEOUT_SECONDS=5
 ```
 
 **Frontend (`.env.local`)** — см. `visa-map2-frontend/.env.example`:
